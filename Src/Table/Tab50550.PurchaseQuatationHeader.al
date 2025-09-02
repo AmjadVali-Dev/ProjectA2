@@ -96,25 +96,31 @@ table 50550 "Purchase Quatation Header"
         PurchLine: Record "Purchase Line";
         QuotationLine: Record "Purchase Quotaion Lin";
     begin
-        PurchHeader.Init();
-        PurchHeader.Validate("Document Type", PurchHeader."Document Type"::Quote);
-        PurchHeader.Validate("Buy-from Vendor No.", QuotationHeader."Vendor No.");
-        PurchHeader.Insert(true);
-        QuotationLine.SetRange("No.", QuotationHeader."No.");
-        if QuotationLine.FindSet() then begin
-            repeat
-                PurchLine.Init();
-                PurchLine.Validate("Document Type", PurchLine."Document Type"::Quote);
-                PurchLine.Validate("Document No.", PurchHeader."No.");
-                PurchLine.Validate("Line No.", QuotationLine."Line No.");
-                PurchLine.Validate(Type, PurchLine.Type::Item);
-                PurchLine.Validate("No.", QuotationLine."Item No.");
-                PurchLine.Validate(Quantity, QuotationLine.Quantity);
-                PurchLine."Quotattion_No." := PurchHeader."No.";
-                PurchLine."Quotation Line_No." := PurchLine."Line No.";
-                PurchLine.Insert(true);
-            until QuotationLine.Next() = 0;
+        PurchHeader.SetRange("No.", QuotationHeader."No.");
+        if PurchHeader.FindFirst() then
+            PAGE.Run(Page::"Purchase Quote", PurchHeader)
+        else begin
+            PurchHeader.Init();
+            PurchHeader.Validate("Document Type", PurchHeader."Document Type"::Quote);
+            PurchHeader."No." := QuotationHeader."No.";
+            PurchHeader.Validate("Buy-from Vendor No.", QuotationHeader."Vendor No.");
+            PurchHeader.Insert(true);
+            QuotationLine.SetRange("No.", QuotationHeader."No.");
+            if QuotationLine.FindSet() then begin
+                repeat
+                    PurchLine.Init();
+                    PurchLine.Validate("Document Type", PurchLine."Document Type"::Quote);
+                    PurchLine.Validate("Document No.", PurchHeader."No.");
+                    PurchLine.Validate("Line No.", QuotationLine."Line No.");
+                    PurchLine.Validate(Type, PurchLine.Type::Item);
+                    PurchLine.Validate("No.", QuotationLine."Item No.");
+                    PurchLine.Validate(Quantity, QuotationLine.Quantity);
+                    PurchLine."Quotattion_No." := PurchHeader."No.";
+                    PurchLine."Quotation Line_No." := PurchLine."Line No.";
+                    PurchLine.Insert(true);
+                until QuotationLine.Next() = 0;
+            end;
+            PAGE.Run(Page::"Purchase Quote", PurchHeader);
         end;
-        PAGE.Run(Page::"Purchase Quote", PurchHeader);
     end;
 }
