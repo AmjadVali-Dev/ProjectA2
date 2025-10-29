@@ -5,6 +5,7 @@ table 50551 "Purchase Quotaion Lin"
 
     fields
     {
+        //this is The line Fields 
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
